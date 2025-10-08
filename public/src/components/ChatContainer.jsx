@@ -11,26 +11,20 @@ export default function ChatContainer({ currentChat, socket }) {
   const scrollRef = useRef();
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
-  useEffect(async () => {
-    const data = await JSON.parse(
-      localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-    );
-    const response = await axios.post(recieveMessageRoute, {
-      from: data._id,
-      to: currentChat._id,
-    });
-    setMessages(response.data);
-  }, [currentChat]);
-
   useEffect(() => {
-    const getCurrentChat = async () => {
-      if (currentChat) {
-        await JSON.parse(
-          localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
-        )._id;
-      }
+    const fetchMessages = async () => {
+      const dataStr = localStorage.getItem(
+        process.env.REACT_APP_LOCALHOST_KEY
+      );
+      if (!dataStr || !currentChat) return;
+      const data = JSON.parse(dataStr);
+      const response = await axios.post(recieveMessageRoute, {
+        from: data._id,
+        to: currentChat._id,
+      });
+      setMessages(response.data);
     };
-    getCurrentChat();
+    fetchMessages();
   }, [currentChat]);
 
   const handleSendMsg = async (msg) => {
@@ -54,12 +48,16 @@ export default function ChatContainer({ currentChat, socket }) {
   };
 
   useEffect(() => {
-    if (socket.current) {
-      socket.current.on("msg-recieve", (msg) => {
+    if (socket && socket.current) {
+      const handler = (msg) => {
         setArrivalMessage({ fromSelf: false, message: msg });
-      });
+      };
+      socket.current.on("msg-recieve", handler);
+      return () => {
+        if (socket.current) socket.current.off("msg-recieve", handler);
+      };
     }
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
