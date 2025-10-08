@@ -1,4 +1,4 @@
-# Snappy - Chat Application 
+# Giggly - Chat Application 
 Giggly is chat application build with the power of MERN Stack.
 ![login page](./images/giggly_login.png)
 
