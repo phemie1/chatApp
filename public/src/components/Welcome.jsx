@@ -16,7 +16,7 @@ export default function Welcome() {
       <h1>
         Welcome, <span>{userName}!</span>
       </h1>
-      <h3>Please select a chat to Start messaging.</h3>
+      <h3>Select a friend from your list to start a conversation.</h3>
     </Container>
   );
 }
